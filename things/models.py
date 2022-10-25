@@ -18,5 +18,5 @@ class Thing(models.Model):
     quantity = models.IntegerField(
     unique = False,
     validators=[MaxValueValidator(100),
-    MinValueValidator(1)]
+    MinValueValidator(0)]
     )
