@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 
 class Thing(models.Model):
     name = models.CharField(
@@ -15,5 +16,6 @@ class Thing(models.Model):
 
     quantity = models.IntegerField(
     unique = False,
-    validators=[MaxValueValidator(100), MinValueValidator(1)]
+    validators=[MaxValueValidator(100),
+    MinValueValidator(1)]
     )
