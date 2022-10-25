@@ -125,4 +125,5 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-#default model
+# User model for authentification purposes
+AUTH_USER_MODEL = 'things.user'
