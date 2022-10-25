@@ -14,7 +14,7 @@ class Thing(models.Model):
     )
 
     quantity = models.IntegerField(
-    min_length = 0,
+    #min_length = 0,
     max_length = 100,
     unique = False
     )
