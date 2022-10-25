@@ -1,7 +1,8 @@
 from django.test import TestCase
-from .models import Thing
+from .models import Thing, User, Post
 from django.core.exceptions import ValidationError
-from .models import User
+
+
 
 class ThinigModelTest(TestCase):
 
@@ -23,7 +24,7 @@ class ThinigModelTest(TestCase):
     def test_valid_thing(self):
         self._assert_thing_is_valid()
 
-##############################
+
 
     def test_things_name_cannot_be_blank(self):
         self.thing.name = ''
@@ -79,6 +80,42 @@ class ThinigModelTest(TestCase):
         second_thing = self._create_second_thing()
         self.thing.quantity = second_thing.quantity
         self._assert_thing_is_valid()
+
+
+
+    def _create_second_thing(self):
+        thing = Thing.objects.create(
+            name='material',
+            description='materail object',
+            quantity=1
+        )
+        return thing
+
+    def _assert_thing_is_valid(self):
+        try:
+            self.thing.full_clean()
+        except (ValidationError):
+            self.fail('Test thing should be valid')
+
+    def _assert_thing_is_invalid(self):
+        with self.assertRaises(ValidationError):
+            self.thing.full_clean()
+
+
+
+
+
+class UserModelTest(TestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            '@johndoe',
+            first_name='John',
+            last_name='Doe',
+            email='johndoe@example.org',
+            password='Password123',
+            bio='wag1'
+        )
 
 
 
@@ -146,7 +183,6 @@ class ThinigModelTest(TestCase):
         self._assert_user_is_valid()
 
 
-
     def test_last_name_cannot_be_blank(self):
         self.user.last_name = ''
         self._assert_user_is_invalid()
@@ -163,7 +199,6 @@ class ThinigModelTest(TestCase):
         second_user = self._create_second_user()
         self.user.last_name =  second_user.last_name
         self._assert_user_is_valid()
-
 
 
     def test_email_cannot_be_blank(self):
@@ -196,7 +231,6 @@ class ThinigModelTest(TestCase):
         self._assert_user_is_invalid()
 
 
-
     def test_bio_can_be_blank(self):
         self.user.bio = ''
         self._assert_user_is_valid()
@@ -216,15 +250,6 @@ class ThinigModelTest(TestCase):
 
 
 
-##############################
-    def _create_second_thing(self):
-        thing = Thing.objects.create(
-            name='material',
-            description='materail object',
-            quantity=1
-        )
-        return thing
-
     def _create_second_user(self):
         user = User.objects.create_user(
             '@janedoe',
@@ -236,16 +261,6 @@ class ThinigModelTest(TestCase):
         )
         return user
 
-    def _assert_thing_is_valid(self):
-        try:
-            self.thing.full_clean()
-        except (ValidationError):
-            self.fail('Test thing should be valid')
-
-    def _assert_thing_is_invalid(self):
-        with self.assertRaises(ValidationError):
-            self.thing.full_clean()
-
     def _assert_user_is_valid(self):
         try:
             self.user.full_clean()
@@ -255,3 +270,43 @@ class ThinigModelTest(TestCase):
     def _assert_user_is_invalid(self):
         with self.assertRaises(ValidationError):
             self.user.full_clean()
+
+
+
+
+class PostTest(TestCase):
+    def setUp(self):
+        super(TestCase, self).setUp()
+        self.user = User.objects.create_user(
+            '@johndoe',
+            first_name='John',
+            last_name='Doe',
+            email='johndoe@example.org',
+            password='Password123',
+            bio='The quick brown fox jumps over the lazy dog.'
+        )
+        self.post = Post(
+            author=self.user,
+            text="The quick brown fox jumps over the lazy dog."
+        )
+
+    def test_valid_message(self):
+        try:
+            self.post.full_clean()
+        except ValidationError:
+            self.fail("Test message should be valid")
+
+    def test_author_must_not_be_blank(self):
+        self.post.author = None
+        with self.assertRaises(ValidationError):
+            self.post.full_clean()
+
+    def test_text_must_not_be_blank(self):
+        self.post.text = ''
+        with self.assertRaises(ValidationError):
+            self.post.full_clean()
+
+    def test_text_must_not_be_overlong(self):
+        self.post.text = 'x' * 281
+        with self.assertRaises(ValidationError):
+            self.post.full_clean()
